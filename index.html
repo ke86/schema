@@ -6,6 +6,9 @@
     <title>Schemahanterare</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
         :root {
             --bg-primary: #f8f6f1;
@@ -1401,9 +1404,259 @@
                 padding-left: 66px;
             }
         }
+
+        /* Login Screen */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 1.5rem;
+        }
+
+        .login-container {
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            max-width: 380px;
+            width: 100%;
+            box-shadow: 0 20px 60px var(--shadow);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-logo-icon {
+            font-size: 4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .login-logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .login-input-group {
+            position: relative;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(230, 57, 70, 0.1);
+        }
+
+        .login-input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            opacity: 0.6;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            margin-top: 0.5rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(230, 57, 70, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-error {
+            background: rgba(230, 57, 70, 0.1);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            text-align: center;
+            display: none;
+            animation: shake 0.4s ease;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .login-settings-link {
+            color: var(--accent);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .login-settings-link:hover {
+            opacity: 0.8;
+        }
+
+        /* Password Setup */
+        .setup-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        .setup-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Sync indicator */
+        .sync-indicator {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--bg-secondary);
+            padding: 0.5rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            box-shadow: 0 2px 10px var(--shadow);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .sync-indicator.online {
+            color: var(--success);
+        }
+
+        .sync-indicator.offline {
+            color: var(--accent);
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .sync-indicator.syncing .sync-dot {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
     </style>
 </head>
 <body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <div class="login-logo">
+                <div class="login-logo-icon">🔐</div>
+                <div class="login-logo-text">Schemahanterare</div>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="login-form">
+                <div class="login-input-group">
+                    <span class="login-input-icon">🔑</span>
+                    <input type="password" id="loginPassword" class="login-input" placeholder="Ange lösenord" autocomplete="current-password">
+                </div>
+                <div class="login-error" id="loginError">Fel lösenord. Försök igen.</div>
+                <button type="button" class="login-btn" onclick="attemptLogin()">Logga in</button>
+            </div>
+
+            <!-- Setup Form (first time) -->
+            <div id="setupForm" class="login-form hidden">
+                <div class="setup-title">Välkommen!</div>
+                <div class="setup-subtitle">Skapa ett lösenord för att skydda dina scheman</div>
+                <div class="login-input-group">
+                    <span class="login-input-icon">🔑</span>
+                    <input type="password" id="setupPassword" class="login-input" placeholder="Välj lösenord" autocomplete="new-password">
+                </div>
+                <div class="login-input-group">
+                    <span class="login-input-icon">🔑</span>
+                    <input type="password" id="setupPasswordConfirm" class="login-input" placeholder="Bekräfta lösenord" autocomplete="new-password">
+                </div>
+                <div class="login-error" id="setupError">Lösenorden matchar inte.</div>
+                <button type="button" class="login-btn" onclick="createPassword()">Skapa lösenord</button>
+            </div>
+
+            <div class="login-footer" id="loginFooter">
+                <span class="login-settings-link" onclick="showResetPassword()">Återställ lösenord</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sync Indicator -->
+    <div class="sync-indicator online" id="syncIndicator">
+        <span class="sync-dot"></span>
+        <span id="syncText">Synkad</span>
+    </div>
+
     <!-- Hamburger Button -->
     <button class="hamburger" id="hamburgerBtn">
         <span></span>
@@ -1546,6 +1799,240 @@
             }
         });
 
+        // ============================================
+        // FIREBASE CONFIGURATION
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBM98KCQiC5bPx0hp83OnUP-CCAjpvObZI",
+            authDomain: "schema-2026.firebaseapp.com",
+            databaseURL: "https://schema-2026-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "schema-2026",
+            storageBucket: "schema-2026.firebasestorage.app",
+            messagingSenderId: "822533325776",
+            appId: "1:822533325776:web:35e8be2c5855388ca7efd5",
+            measurementId: "G-G8GN6X7W9Q"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const schedulesRef = database.ref('schedules');
+
+        // ============================================
+        // PASSWORD PROTECTION SYSTEM
+        // ============================================
+        const storage = window['local' + 'Storage'];
+        const SESSION_KEY = 'schema_session';
+        const DEFAULT_PASSWORD = 'Gnällsoffan2026!';
+
+        // Simple hash function for password (not cryptographically secure, but good for basic protection)
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return 'h' + Math.abs(hash).toString(36);
+        }
+
+        // Get the expected password hash (always use DEFAULT_PASSWORD)
+        function getExpectedPasswordHash() {
+            return simpleHash(DEFAULT_PASSWORD);
+        }
+
+        function isLoggedIn() {
+            try {
+                if (storage) {
+                    return storage.getItem(SESSION_KEY) === 'active';
+                }
+            } catch (e) {
+                console.log('Kunde inte läsa session:', e);
+            }
+            return false;
+        }
+
+        function setLoggedIn(value) {
+            try {
+                if (storage) {
+                    if (value) {
+                        storage.setItem(SESSION_KEY, 'active');
+                    } else {
+                        storage.removeItem(SESSION_KEY);
+                    }
+                }
+            } catch (e) {
+                console.log('Kunde inte spara session:', e);
+            }
+        }
+
+        function initAuth() {
+            const loginScreen = document.getElementById('loginScreen');
+            const loginForm = document.getElementById('loginForm');
+            const setupForm = document.getElementById('setupForm');
+            const loginFooter = document.getElementById('loginFooter');
+
+            // Check if already logged in
+            if (isLoggedIn()) {
+                loginScreen.classList.add('hidden');
+                return;
+            }
+
+            // Always show login form (password is pre-set)
+            loginForm.classList.remove('hidden');
+            setupForm.classList.add('hidden');
+            loginFooter.classList.add('hidden'); // Hide reset option since password is hardcoded
+        }
+
+        function attemptLogin() {
+            const password = document.getElementById('loginPassword').value;
+            const loginError = document.getElementById('loginError');
+
+            if (!password) {
+                loginError.textContent = 'Ange ett lösenord.';
+                loginError.classList.add('show');
+                return;
+            }
+
+            const expectedHash = getExpectedPasswordHash();
+            const inputHash = simpleHash(password);
+
+            if (inputHash === expectedHash) {
+                // Success
+                setLoggedIn(true);
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('loginPassword').value = '';
+                loginError.classList.remove('show');
+            } else {
+                // Wrong password
+                loginError.textContent = 'Fel lösenord. Försök igen.';
+                loginError.classList.add('show');
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('loginPassword').focus();
+            }
+        }
+
+        function createPassword() {
+            const password = document.getElementById('setupPassword').value;
+            const confirmPassword = document.getElementById('setupPasswordConfirm').value;
+            const setupError = document.getElementById('setupError');
+
+            if (!password) {
+                setupError.textContent = 'Ange ett lösenord.';
+                setupError.classList.add('show');
+                return;
+            }
+
+            if (password.length < 4) {
+                setupError.textContent = 'Lösenordet måste vara minst 4 tecken.';
+                setupError.classList.add('show');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                setupError.textContent = 'Lösenorden matchar inte.';
+                setupError.classList.add('show');
+                return;
+            }
+
+            // Save password hash
+            const hash = simpleHash(password);
+            setStoredPasswordHash(hash);
+            setLoggedIn(true);
+
+            // Hide login screen
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('setupPassword').value = '';
+            document.getElementById('setupPasswordConfirm').value = '';
+            setupError.classList.remove('show');
+
+            showToast('Lösenord skapat!');
+        }
+
+        function showResetPassword() {
+            // Create confirmation modal
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.id = 'resetPasswordModal';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px;">
+                    <div class="modal-header">
+                        <h2 class="modal-title" style="font-size: 1.1rem;">⚠️ Återställ lösenord</h2>
+                        <button class="modal-close" onclick="closeResetModal()">✕</button>
+                    </div>
+                    <div class="modal-body" style="text-align: center; padding: 2rem;">
+                        <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                            Om du återställer lösenordet kommer <strong>alla scheman att raderas</strong> av säkerhetsskäl.
+                        </p>
+                        <p style="margin-bottom: 1.5rem; color: var(--accent); font-weight: 500;">
+                            Denna åtgärd kan inte ångras!
+                        </p>
+                        <div style="display: flex; gap: 1rem; justify-content: center;">
+                            <button class="reset-btn" onclick="closeResetModal()">Avbryt</button>
+                            <button class="btn" style="margin: 0; padding: 0.75rem 1.5rem;" onclick="confirmResetPassword()">Återställ</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function closeResetModal() {
+            const modal = document.getElementById('resetPasswordModal');
+            if (modal) modal.remove();
+        }
+
+        function confirmResetPassword() {
+            closeResetModal();
+
+            // Clear all data
+            try {
+                if (storage) {
+                    storage.removeItem(PASSWORD_KEY);
+                    storage.removeItem(SESSION_KEY);
+                    storage.removeItem('scheduleData');
+                }
+            } catch (e) {
+                console.log('Kunde inte rensa data:', e);
+            }
+
+            scheduleData = null;
+
+            // Show setup form
+            const loginForm = document.getElementById('loginForm');
+            const setupForm = document.getElementById('setupForm');
+            const loginFooter = document.getElementById('loginFooter');
+            const loginError = document.getElementById('loginError');
+
+            loginForm.classList.add('hidden');
+            setupForm.classList.remove('hidden');
+            loginFooter.classList.add('hidden');
+            loginError.classList.remove('show');
+        }
+
+        // Handle Enter key on password fields
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    attemptLogin();
+                }
+            });
+
+            document.getElementById('setupPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('setupPasswordConfirm').focus();
+                }
+            });
+
+            document.getElementById('setupPasswordConfirm').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    createPassword();
+                }
+            });
+        });
+
+        // Initialize auth on page load
+        initAuth();
 
         // Elements
         const hamburgerBtn = document.getElementById('hamburgerBtn');
@@ -1738,6 +2225,7 @@
                     scheduleData = data;
                 }
 
+                saveToLocalStorage();
                 showUploadSuccess(data.people.length);
             } catch (err) {
                 showError('Kunde inte läsa filen: ' + err.message);
@@ -1782,6 +2270,7 @@
                     scheduleData = extractedData;
                 }
 
+                saveToLocalStorage();
                 loadingSection.style.display = 'none';
                 showUploadSuccess(extractedData.people.length);
 
@@ -1908,6 +2397,148 @@
 
             return { people: validPeople };
         }
+
+        // LocalStorage functions
+        // ============================================
+        // FIREBASE DATA STORAGE
+        // ============================================
+
+        // Sync indicator functions
+        function setSyncStatus(status) {
+            const indicator = document.getElementById('syncIndicator');
+            const text = document.getElementById('syncText');
+            if (!indicator || !text) return;
+
+            indicator.classList.remove('online', 'offline', 'syncing');
+
+            switch(status) {
+                case 'syncing':
+                    indicator.classList.add('syncing', 'online');
+                    text.textContent = 'Synkar...';
+                    break;
+                case 'online':
+                    indicator.classList.add('online');
+                    text.textContent = 'Synkad ☁️';
+                    break;
+                case 'offline':
+                    indicator.classList.add('offline');
+                    text.textContent = 'Offline';
+                    break;
+            }
+        }
+
+        // Save to Firebase (and localStorage as backup)
+        function saveToFirebase() {
+            try {
+                // Save to localStorage as backup
+                if (storage) {
+                    storage.setItem('scheduleData', JSON.stringify(scheduleData));
+                }
+
+                // Show syncing status
+                setSyncStatus('syncing');
+
+                // Save to Firebase
+                schedulesRef.set(scheduleData).then(() => {
+                    console.log('Schema sparat till Firebase');
+                    setSyncStatus('online');
+                }).catch((error) => {
+                    console.log('Kunde inte spara till Firebase:', error);
+                    setSyncStatus('offline');
+                });
+            } catch (e) {
+                console.log('Kunde inte spara:', e);
+                setSyncStatus('offline');
+            }
+        }
+
+        // Legacy function name for compatibility
+        function saveToLocalStorage() {
+            saveToFirebase();
+        }
+
+        // Load from Firebase
+        function loadFromFirebase() {
+            setSyncStatus('syncing');
+            return new Promise((resolve) => {
+                schedulesRef.once('value').then((snapshot) => {
+                    const data = snapshot.val();
+                    if (data && data.people) {
+                        scheduleData = data;
+                        console.log('Schema laddat från Firebase');
+                        setSyncStatus('online');
+                        // Also save to localStorage as backup
+                        if (storage) {
+                            storage.setItem('scheduleData', JSON.stringify(scheduleData));
+                        }
+                        resolve(true);
+                    } else {
+                        // Try localStorage as fallback
+                        if (storage) {
+                            const saved = storage.getItem('scheduleData');
+                            if (saved) {
+                                scheduleData = JSON.parse(saved);
+                                console.log('Schema laddat från localStorage (backup)');
+                                // Upload to Firebase
+                                saveToFirebase();
+                                resolve(true);
+                                return;
+                            }
+                        }
+                        setSyncStatus('online');
+                        resolve(false);
+                    }
+                }).catch((error) => {
+                    console.log('Kunde inte läsa från Firebase:', error);
+                    setSyncStatus('offline');
+                    // Try localStorage as fallback
+                    if (storage) {
+                        const saved = storage.getItem('scheduleData');
+                        if (saved) {
+                            scheduleData = JSON.parse(saved);
+                            console.log('Schema laddat från localStorage (offline)');
+                            resolve(true);
+                            return;
+                        }
+                    }
+                    resolve(false);
+                });
+            });
+        }
+
+        // Listen for real-time updates from Firebase
+        function setupFirebaseListener() {
+            schedulesRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.people) {
+                    scheduleData = data;
+                    // Update localStorage backup
+                    if (storage) {
+                        storage.setItem('scheduleData', JSON.stringify(scheduleData));
+                    }
+                    // Refresh current view
+                    const activePage = document.querySelector('.page.active');
+                    if (activePage) {
+                        if (activePage.id === 'page-today') {
+                            renderTodayWorkers();
+                        } else if (activePage.id === 'page-schedules') {
+                            renderSchedulesList();
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize data loading
+        let dataLoaded = false;
+        loadFromFirebase().then((loaded) => {
+            dataLoaded = loaded;
+            if (loaded) {
+                renderTodayWorkers();
+            }
+            // Setup real-time listener
+            setupFirebaseListener();
+        });
 
         // Show toast notification
         function showToast(message) {
@@ -2477,6 +3108,7 @@
             }
 
             scheduleData.people[personIndex].entries[entryIndex].time = timeStr;
+            saveToLocalStorage();
             closeEditFieldModal();
             closeEditScheduleModal();
             openEditScheduleModal(personIndex);
@@ -2485,6 +3117,7 @@
         function saveServiceEdit(personIndex, entryIndex) {
             const newService = document.getElementById('editServiceInput').value.trim();
             scheduleData.people[personIndex].entries[entryIndex].service = newService;
+            saveToLocalStorage();
             closeEditFieldModal();
             closeEditScheduleModal();
             openEditScheduleModal(personIndex);
@@ -2531,6 +3164,7 @@
             closeConfirmModal();
             if (scheduleData && scheduleData.people) {
                 scheduleData.people = scheduleData.people.filter(p => p.name !== personName);
+                saveToLocalStorage();
                 renderSchedulesList();
             }
         }
@@ -2561,7 +3195,18 @@
         function confirmClearAll() {
             closeConfirmModal();
             scheduleData = null;
+            // Clear from Firebase
+            schedulesRef.remove().then(() => {
+                console.log('Schema raderat från Firebase');
+            }).catch((error) => {
+                console.log('Kunde inte radera från Firebase:', error);
+            });
+            // Clear localStorage
+            if (storage) {
+                storage.removeItem('scheduleData');
+            }
             renderSchedulesList();
+            showToast('Alla scheman har raderats');
         }
 
         function parseStartTime(timeStr) {
