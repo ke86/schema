@@ -1357,6 +1357,40 @@
             box-shadow: 0 4px 15px var(--shadow);
         }
 
+        .schedules-summary-compact {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding: 0 0.25rem;
+        }
+
+        .schedules-count {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .clear-btn-small {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.75rem;
+            font-size: 0.8rem;
+            font-family: inherit;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .clear-btn-small:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .clear-btn-small:active {
+            transform: scale(0.97);
+        }
+
         .schedules-summary-text {
             font-size: 0.95rem;
             color: var(--text-secondary);
@@ -3067,27 +3101,11 @@
             });
             monthSelectorHtml += '</div>';
 
-            // Count totals based on filter
-            let totalWorkDays = 0;
-            let totalFreeDays = 0;
-            scheduleData.people.forEach(person => {
-                const counts = countDaysForPerson(person, selectedMonth);
-                totalWorkDays += counts.workDays;
-                totalFreeDays += counts.freeDays;
-            });
-
             let html = `
                 ${monthSelectorHtml}
-                <div class="schedules-summary">
-                    <div class="schedules-summary-text">
-                        👥 <strong>${scheduleData.people.length}</strong> personer &nbsp;|&nbsp;
-                        💼 <strong>${totalWorkDays}</strong> arbetsdagar &nbsp;|&nbsp;
-                        🏖️ <strong>${totalFreeDays}</strong> fridagar
-                    </div>
-                    <div class="schedule-actions">
-                        <button class="save-btn" onclick="saveScheduleToJson()">💾 Spara alla</button>
-                        <button class="reset-btn danger" onclick="clearAllSchedules()">🗑️ Rensa allt</button>
-                    </div>
+                <div class="schedules-summary-compact">
+                    <span class="schedules-count">👥 ${scheduleData.people.length} personer</span>
+                    <button class="clear-btn-small" onclick="clearAllSchedules()">Rensa allt</button>
                 </div>
             `;
 
