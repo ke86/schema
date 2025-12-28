@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="sv">
-<head>
+<!DOCTYPE html><html lang="sv"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Schemahanterare</title>
@@ -16,9 +14,9 @@
     <meta name="theme-color" content="#0f0f1a" media="(prefers-color-scheme: dark)">
 
     <!-- iOS Icons -->
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23e63946' width='100' height='100' rx='20'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='white'>📅</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;rect fill='%23e63946' width='100' height='100' rx='20'/&gt;&lt;text x='50' y='68' font-size='50' text-anchor='middle' fill='white'&gt;📅&lt;/text&gt;&lt;/svg&gt;">
 
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -85,36 +83,58 @@
             }
         }
 
+        /* Top Bar */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: calc(56px + env(safe-area-inset-top));
+            padding-top: env(safe-area-inset-top);
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+            box-shadow: 0 2px 10px var(--shadow);
+            z-index: 100;
+        }
+
+        .top-bar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+            text-align: center;
+            margin: 0;
+        }
+
         /* Hamburger Menu */
         .hamburger {
-            position: fixed;
-            top: calc(1rem + env(safe-area-inset-top));
-            left: calc(1rem + env(safe-area-inset-left));
-            z-index: 1000;
             width: 44px;
             height: 44px;
-            background: var(--bg-secondary);
+            background: transparent;
             border: none;
-            border-radius: 12px;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             gap: 5px;
-            box-shadow: 0 4px 15px var(--shadow);
             transition: all 0.3s ease;
+            flex-shrink: 0;
+            margin: 6px;
         }
 
         .hamburger:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px var(--shadow);
+            opacity: 0.7;
         }
 
         .hamburger span {
             display: block;
-            width: 22px;
-            height: 2.5px;
+            width: 20px;
+            height: 2px;
             background: var(--text-primary);
             border-radius: 2px;
             transition: all 0.3s ease;
@@ -129,7 +149,7 @@
         }
 
         .hamburger.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(6px, -6px);
+            transform: rotate(-45deg) translate(5px, -5px);
         }
 
         /* Sidebar Menu */
@@ -1729,18 +1749,12 @@
 
         /* Sync indicator */
         .sync-indicator {
-            position: fixed;
-            top: calc(1rem + env(safe-area-inset-top));
-            right: calc(1rem + env(safe-area-inset-right));
-            background: var(--bg-secondary);
-            padding: 0.5rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
             display: flex;
             align-items: center;
-            gap: 0.4rem;
-            box-shadow: 0 2px 10px var(--shadow);
-            z-index: 100;
+            gap: 0.3rem;
+            padding: 0.5rem;
+            margin-right: 0.5rem;
+            flex-shrink: 0;
             transition: all 0.3s ease;
         }
 
@@ -1757,6 +1771,11 @@
             height: 8px;
             border-radius: 50%;
             background: currentColor;
+        }
+
+        .sync-icon {
+            font-size: 1rem;
+            opacity: 0.7;
         }
 
         .sync-indicator.syncing .sync-dot {
@@ -1799,22 +1818,23 @@
                 <button type="button" class="login-btn" onclick="createPassword()">Skapa</button>
             </div>
 
-            <div class="version-text">Version 0.01</div>
+            <div class="version-text">Version 0.02</div>
         </div>
     </div>
 
-    <!-- Sync Indicator -->
-    <div class="sync-indicator online" id="syncIndicator">
-        <span class="sync-dot"></span>
-        <span id="syncText">Synkad</span>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <button class="hamburger" id="hamburgerBtn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <h1 class="top-bar-title" id="topBarTitle">Vem jobbar idag?</h1>
+        <div class="sync-indicator online" id="syncIndicator">
+            <span class="sync-dot"></span>
+            <span class="sync-icon">☁️</span>
+        </div>
     </div>
-
-    <!-- Hamburger Button -->
-    <button class="hamburger" id="hamburgerBtn">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
 
     <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -1840,19 +1860,13 @@
                 Ladda upp schema
             </button>
         </div>
-        <div class="sidebar-version">Version 0.01</div>
+        <div class="sidebar-version">Version 0.02</div>
     </nav>
 
     <!-- Main Content -->
     <div class="main-content">
         <!-- Today's Workers Page -->
         <div class="page active" id="page-today">
-            <header>
-                <div class="today-header">
-                    <h1>👥 Vem jobbar idag?</h1>
-                </div>
-            </header>
-
             <div class="date-nav-container">
                 <button class="date-nav-btn" id="prevDayBtn" title="Föregående dag">←</button>
                 <div class="date-display-picker">
@@ -1874,11 +1888,6 @@
 
         <!-- Schedules Page -->
         <div class="page" id="page-schedules">
-            <header>
-                <h1>📋 Scheman</h1>
-                <p class="subtitle">Alla uppladdade scheman</p>
-            </header>
-
             <div id="schedulesListContainer">
                 <div class="no-data-message">
                     <div class="no-data-icon">📋</div>
@@ -1891,11 +1900,6 @@
 
         <!-- Upload Schedule Page -->
         <div class="page" id="page-upload">
-            <header>
-                <h1>📤 Importera schema</h1>
-                <p class="subtitle">Ladda upp en PDF eller JSON-fil</p>
-            </header>
-
             <!-- Import Section -->
             <div class="import-section">
                 <label class="upload-zone" id="uploadZone" for="fileInput">
@@ -1953,7 +1957,7 @@
 
         // ============================================
         // APP VERSION
-        const APP_VERSION = '0.01';
+        const APP_VERSION = '0.02';
 
         // FIREBASE CONFIGURATION
         // ============================================
@@ -2287,6 +2291,13 @@
         hamburgerBtn.addEventListener('click', toggleSidebar);
         sidebarOverlay.addEventListener('click', toggleSidebar);
 
+        // Page titles for top bar
+        const pageTitles = {
+            'today': 'Vem jobbar idag?',
+            'schedules': 'Scheman',
+            'upload': 'Importera schema'
+        };
+
         // Navigation
         function navigateTo(pageId) {
             navItems.forEach(item => {
@@ -2295,6 +2306,12 @@
             pages.forEach(page => {
                 page.classList.toggle('active', page.id === `page-${pageId}`);
             });
+
+            // Update top bar title
+            const topBarTitle = document.getElementById('topBarTitle');
+            if (topBarTitle && pageTitles[pageId]) {
+                topBarTitle.textContent = pageTitles[pageId];
+            }
 
             if (pageId === 'today') {
                 renderTodayWorkers();
@@ -2558,23 +2575,19 @@
         // Sync indicator functions
         function setSyncStatus(status) {
             const indicator = document.getElementById('syncIndicator');
-            const text = document.getElementById('syncText');
-            if (!indicator || !text) return;
+            if (!indicator) return;
 
             indicator.classList.remove('online', 'offline', 'syncing');
 
             switch(status) {
                 case 'syncing':
                     indicator.classList.add('syncing', 'online');
-                    text.textContent = 'Synkar...';
                     break;
                 case 'online':
                     indicator.classList.add('online');
-                    text.textContent = 'Synkad ☁️';
                     break;
                 case 'offline':
                     indicator.classList.add('offline');
-                    text.textContent = 'Offline';
                     break;
             }
         }
@@ -2724,50 +2737,27 @@
         }
 
 
+        // Track if we came from "today" page to return there when closing schedule
+        let cameFromToday = false;
+
         function openPersonModal(personName) {
             const person = scheduleData.people.find(p => p.name === personName);
             if (!person) return;
 
-            modalPersonName.textContent = person.name;
+            // Find person index in schedule data
+            const personIndex = scheduleData.people.findIndex(p => p.name === personName);
+            if (personIndex === -1) return;
 
-            let html = '<table class="modal-schedule-table"><thead><tr><th>Veckodag</th><th>Datum</th><th>Tid</th><th>Tjänst</th></tr></thead><tbody>';
+            // Remember we came from today's page
+            cameFromToday = true;
 
-            if (person.entries && person.entries.length > 0) {
-                // Sort entries by date
-                const sortedEntries = [...person.entries].sort((a, b) => {
-                    const dateA = normalizeDate(a.date);
-                    const dateB = normalizeDate(b.date);
-                    if (!dateA || !dateB) return 0;
-                    if (dateA.month !== dateB.month) return dateA.month - dateB.month;
-                    return dateA.day - dateB.day;
-                });
+            // Navigate to schedules page and open the person's schedule
+            navigateTo('schedules');
 
-                sortedEntries.forEach(entry => {
-                    const serviceClass = isServiceFree(entry.service) ? 'service-free' : 'service-badge';
-                    const serviceIcon = getServiceIcon(entry.service);
-                    const displayService = formatServiceDisplay(entry.service);
-                    html += `
-                        <tr>
-                            <td class="weekday-cell">${escapeHtml(entry.weekday || '-')}</td>
-                            <td class="date-cell">${escapeHtml(entry.date || '-')}</td>
-                            <td><span class="time-badge">${escapeHtml(entry.time || '-')}</span></td>
-                            <td>
-                                <div class="service-container">
-                                    <span class="${serviceClass}">${escapeHtml(displayService || '-')}</span>
-                                    ${serviceIcon}
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                });
-            } else {
-                html += '<tr><td colspan="4" style="text-align: center;">Inga schemauppgifter</td></tr>';
-            }
-
-            html += '</tbody></table>';
-            modalBody.innerHTML = html;
-
-            personModal.classList.add('active');
+            // Small delay to ensure page is rendered, then open the modal
+            setTimeout(() => {
+                openEditScheduleModal(personIndex);
+            }, 100);
         }
 
         function closeModal() {
@@ -3065,13 +3055,13 @@
             return Array.from(months).sort();
         }
 
-        // Get month name in Swedish
+        // Get month name in Swedish (short format: "Jan 26")
         function getMonthName(monthStr) {
-            const monthNames = ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni',
-                               'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December'];
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun',
+                               'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'];
             const parts = monthStr.split('-');
             const monthIndex = parseInt(parts[1], 10) - 1;
-            const year = parts[0];
+            const year = parts[0].slice(-2);
             return `${monthNames[monthIndex]} ${year}`;
         }
 
@@ -3121,11 +3111,13 @@
             // Get available months
             const availableMonths = getAvailableMonths();
 
-            // Build month selector
-            let monthSelectorHtml = `
-                <div class="month-selector">
-                    <button class="month-btn ${selectedMonth === null ? 'active' : ''}" onclick="selectMonth(null)">Alla</button>
-            `;
+            // Auto-select first month if none selected
+            if (selectedMonth === null && availableMonths.length > 0) {
+                selectedMonth = availableMonths[0];
+            }
+
+            // Build month selector (without "Alla" button)
+            let monthSelectorHtml = `<div class="month-selector">`;
             availableMonths.forEach(month => {
                 monthSelectorHtml += `
                     <button class="month-btn ${selectedMonth === month ? 'active' : ''}" onclick="selectMonth('${month}')">${getMonthName(month)}</button>
@@ -3151,7 +3143,7 @@
 
                 html += `
                     <div class="schedule-list-item" id="schedule-item-${personIndex}">
-                        <div class="schedule-list-header" onclick="openEditScheduleModal(${personIndex})">
+                        <div class="schedule-list-header" onclick="cameFromToday = false; openEditScheduleModal(${personIndex})">
                             <div>
                                 <div class="schedule-list-name">${escapeHtml(person.name)}</div>
                                 <div class="schedule-list-meta">💼 ${counts.workDays} arbetsdagar · 🏖️ ${counts.freeDays} fridagar</div>
@@ -3360,6 +3352,12 @@
             if (modal) {
                 modal.remove();
             }
+
+            // If we came from today's page, return there
+            if (cameFromToday) {
+                cameFromToday = false;
+                navigateTo('today');
+            }
         }
 
         function confirmDeletePerson(personName) {
@@ -3551,5 +3549,7 @@
         }
 
     </script>
-</body>
-</html>
+
+
+
+</body></html>
