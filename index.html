@@ -1153,24 +1153,26 @@
             table-layout: fixed;
         }
 
+        /* Column widths: Veckodag, Datum, Tid, Tjänst */
         .modal-schedule-table th:nth-child(1),
-        .modal-schedule-table td:nth-child(1) { width: 22%; }
+        .modal-schedule-table td:nth-child(1) { width: 18%; }
         .modal-schedule-table th:nth-child(2),
-        .modal-schedule-table td:nth-child(2) { width: 18%; }
+        .modal-schedule-table td:nth-child(2) { width: 22%; }
         .modal-schedule-table th:nth-child(3),
-        .modal-schedule-table td:nth-child(3) { width: 25%; }
+        .modal-schedule-table td:nth-child(3) { width: 28%; }
         .modal-schedule-table th:nth-child(4),
-        .modal-schedule-table td:nth-child(4) { width: 35%; }
+        .modal-schedule-table td:nth-child(4) { width: 32%; }
 
         .modal-schedule-table th {
             background: var(--bg-secondary);
             color: var(--text-primary);
-            padding: 0.75rem;
+            padding: 0.5rem 0.4rem;
             text-align: left;
             font-weight: 600;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
         }
 
         .dark .modal-schedule-table th {
@@ -1182,9 +1184,10 @@
         }
 
         .modal-schedule-table td {
-            padding: 0.75rem;
+            padding: 0.5rem 0.4rem;
             border-bottom: 1px solid var(--border);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            white-space: nowrap;
         }
 
         .modal-schedule-table tr:hover td {
@@ -1833,7 +1836,7 @@
                 <button type="button" class="login-btn" onclick="createPassword()">Skapa</button>
             </div>
 
-            <div class="version-text">Version 0.06</div>
+            <div class="version-text">Version 0.07</div>
         </div>
     </div>
 
@@ -1875,7 +1878,7 @@
                 Ladda upp schema
             </button>
         </div>
-        <div class="sidebar-version">Version 0.06</div>
+        <div class="sidebar-version">Version 0.07</div>
     </nav>
 
     <!-- Main Content -->
@@ -1972,7 +1975,7 @@
 
         // ============================================
         // APP VERSION
-        const APP_VERSION = '0.06';
+        const APP_VERSION = '0.07';
 
         // FIREBASE CONFIGURATION
         // ============================================
@@ -3266,15 +3269,24 @@
                     const serviceIcon = getServiceIcon(entry.service);
                     const displayService = formatServiceDisplay(entry.service);
                     const serviceClass = isServiceFree(entry.service) ? 'service-free' : 'service-badge';
-                    // Format date as day/month
+                    // Format date as day/month (without year for display)
                     let displayDate = entry.date || '-';
                     if (entry.date && entry.date.includes('/')) {
-                        displayDate = entry.date; // Already in DD/MM format
+                        // Extract just DD/MM from DD/MM/YYYY if year is present
+                        const dateParts = entry.date.split('/');
+                        displayDate = dateParts.length >= 2 ? `${dateParts[0]}/${dateParts[1]}` : entry.date;
                     }
+
+                    // Shorten weekday for mobile (Måndag → Mån)
+                    const shortWeekdays = {
+                        'Måndag': 'Mån', 'Tisdag': 'Tis', 'Onsdag': 'Ons',
+                        'Torsdag': 'Tor', 'Fredag': 'Fre', 'Lördag': 'Lör', 'Söndag': 'Sön'
+                    };
+                    const displayWeekday = shortWeekdays[entry.weekday] || entry.weekday || '-';
 
                     entriesHtml += `
                         <tr>
-                            <td>${escapeHtml(entry.weekday || '-')}</td>
+                            <td>${escapeHtml(displayWeekday)}</td>
                             <td>${escapeHtml(displayDate)}</td>
                             <td>
                                 <span class="editable-cell" onclick="openEditTimeModal(${personIndex}, ${entryIndex})">${escapeHtml(entry.time || '-')}</span>
@@ -3306,7 +3318,7 @@
                         <table class="modal-schedule-table" style="margin: 0;">
                             <thead>
                                 <tr>
-                                    <th style="background: var(--bg-secondary);">Veckodag</th>
+                                    <th style="background: var(--bg-secondary);">Dag</th>
                                     <th style="background: var(--bg-secondary);">Datum</th>
                                     <th style="background: var(--bg-secondary);">Tid</th>
                                     <th style="background: var(--bg-secondary);">Tjänst</th>
