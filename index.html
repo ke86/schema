@@ -191,6 +191,14 @@
             flex: 1;
         }
 
+        .sidebar-version {
+            padding: 1rem 1.5rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            opacity: 0.5;
+            border-top: 1px solid var(--border);
+        }
+
         .nav-item {
             display: flex;
             align-items: center;
@@ -1707,6 +1715,14 @@
             margin-bottom: 1rem;
         }
 
+        .version-text {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            opacity: 0.6;
+            margin-top: 1.5rem;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -1782,6 +1798,8 @@
                 <div class="login-error" id="setupError">Lösenorden matchar inte.</div>
                 <button type="button" class="login-btn" onclick="createPassword()">Skapa</button>
             </div>
+
+            <div class="version-text">Version 0.01</div>
         </div>
     </div>
 
@@ -1822,6 +1840,7 @@
                 Ladda upp schema
             </button>
         </div>
+        <div class="sidebar-version">Version 0.01</div>
     </nav>
 
     <!-- Main Content -->
@@ -1933,6 +1952,9 @@
         });
 
         // ============================================
+        // APP VERSION
+        const APP_VERSION = '0.01';
+
         // FIREBASE CONFIGURATION
         // ============================================
         const firebaseConfig = {
@@ -2118,10 +2140,15 @@
                 showToast('Lösenord skapat!');
             } catch (e) {
                 console.log('Create password error:', e);
-                setupError.textContent = 'Ett fel uppstod. Försök igen.';
+                // Show more specific error message
+                if (e.code === 'PERMISSION_DENIED') {
+                    setupError.textContent = 'Databasåtkomst nekad. Kontrollera Firebase-regler.';
+                } else {
+                    setupError.textContent = 'Kunde inte spara: ' + (e.message || 'Okänt fel');
+                }
                 setupError.classList.add('show');
             } finally {
-                setupBtn.textContent = 'Skapa lösenord';
+                setupBtn.textContent = 'Skapa';
                 setupBtn.disabled = false;
             }
         }
@@ -2144,6 +2171,11 @@
                 if (e.key === 'Enter') {
                     createPassword();
                 }
+            });
+
+            // Set version numbers dynamically
+            document.querySelectorAll('.version-text, .sidebar-version').forEach(el => {
+                el.textContent = 'Version ' + APP_VERSION;
             });
         });
 
