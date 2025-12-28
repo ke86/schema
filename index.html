@@ -2,8 +2,22 @@
 <html lang="sv">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Schemahanterare</title>
+
+    <!-- iOS Web App Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Schema">
+    <meta name="format-detection" content="telephone=no">
+
+    <!-- Theme color for iOS Safari -->
+    <meta name="theme-color" content="#f8f6f1" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0f0f1a" media="(prefers-color-scheme: dark)">
+
+    <!-- iOS Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23e63946' width='100' height='100' rx='20'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='white'>📅</text></svg>">
+
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <!-- Firebase SDK -->
@@ -37,21 +51,45 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            /* Prevent tap highlight on iOS */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            /* Prevent pull-to-refresh on iOS */
+            overscroll-behavior-y: contain;
         }
 
         body {
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             transition: all 0.3s ease;
+            /* iOS safe areas */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+            /* Prevent text size adjustment on orientation change */
+            -webkit-text-size-adjust: 100%;
+            /* Smooth scrolling */
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Fix iOS 100vh issue */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                min-height: -webkit-fill-available;
+            }
         }
 
         /* Hamburger Menu */
         .hamburger {
             position: fixed;
-            top: 1rem;
-            left: 1rem;
+            top: calc(1rem + env(safe-area-inset-top));
+            left: calc(1rem + env(safe-area-inset-left));
             z-index: 1000;
             width: 44px;
             height: 44px;
@@ -176,6 +214,10 @@
             color: var(--accent);
         }
 
+        .nav-item:active {
+            background: rgba(230, 57, 70, 0.15);
+        }
+
         .nav-item.active {
             background: linear-gradient(135deg, rgba(230, 57, 70, 0.15) 0%, rgba(255, 107, 122, 0.1) 100%);
             color: var(--accent);
@@ -190,7 +232,9 @@
 
         /* Main Content */
         .main-content {
-            padding: 5rem 1.5rem 1.5rem;
+            padding: calc(5rem + env(safe-area-inset-top)) 1.5rem calc(1.5rem + env(safe-area-inset-bottom));
+            padding-left: calc(1.5rem + env(safe-area-inset-left));
+            padding-right: calc(1.5rem + env(safe-area-inset-right));
             max-width: 900px;
             margin: 0 auto;
         }
@@ -329,11 +373,19 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            /* iOS touch improvements */
+            -webkit-appearance: none;
+            touch-action: manipulation;
         }
 
         .btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(230, 57, 70, 0.3);
+        }
+
+        /* iOS active state for touch feedback */
+        .btn:active:not(:disabled) {
+            transform: scale(0.97);
         }
 
         .btn:disabled {
@@ -765,6 +817,16 @@
             gap: 1rem;
             animation: fadeIn 0.4s ease-out forwards;
             opacity: 0;
+            /* iOS touch improvements */
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .worker-card.clickable:active {
+            transform: scale(0.98);
+            opacity: 0.9;
         }
 
         .worker-avatar {
@@ -1132,10 +1194,20 @@
             color: white;
             cursor: pointer;
             transition: all 0.2s ease;
+            /* iOS touch improvements */
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .schedule-list-header:hover {
             opacity: 0.9;
+        }
+
+        .schedule-list-header:active {
+            opacity: 0.8;
+            transform: scale(0.99);
         }
 
         .schedule-list-table {
@@ -1328,6 +1400,56 @@
             color: var(--text-primary);
         }
 
+        /* Month selector */
+        .month-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .month-selector::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .month-selector::-webkit-scrollbar-track {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .month-selector::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .month-btn {
+            flex-shrink: 0;
+            padding: 0.6rem 1rem;
+            border: 2px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .month-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .month-btn.active {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            border-color: transparent;
+            color: white;
+        }
+
         .form-group {
             margin-bottom: 1rem;
         }
@@ -1418,6 +1540,8 @@
             justify-content: center;
             z-index: 9999;
             padding: 1.5rem;
+            padding-top: calc(1.5rem + env(safe-area-inset-top));
+            padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
         }
 
         .login-container {
@@ -1571,8 +1695,8 @@
         /* Sync indicator */
         .sync-indicator {
             position: fixed;
-            top: 1rem;
-            right: 1rem;
+            top: calc(1rem + env(safe-area-inset-top));
+            right: calc(1rem + env(safe-area-inset-right));
             background: var(--bg-secondary);
             padding: 0.5rem 0.75rem;
             border-radius: 20px;
@@ -2318,9 +2442,11 @@
             // Pattern for schedule rows: Weekday YYYY-MM-DD ServiceCode Time
             // Example: "Torsdag 2026-01-01 17203 04:16 - 10:14"
             // Or: "Lördag 2026-01-03 FRIDAG FRIDAG"
+            // Or: "Måndag 2026-01-05 FV/FP2/FP-V FV/FP2/FP-V"
 
             // Match pattern: Weekday + Date (YYYY-MM-DD) + Service + optional Time
-            const rowPattern = /(måndag|tisdag|onsdag|torsdag|fredag|lördag|söndag)\s+(\d{4}-\d{2}-\d{2})\s+(\*?\s*\d{4,5}[A-Z]?|FRIDAG|Reserv\w*)\s*(?:(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2}))?/gi;
+            // Service can be: 5-digit number, FRIDAG, Reserv..., or FV/FP/FP2/FP-V combinations
+            const rowPattern = /(måndag|tisdag|onsdag|torsdag|fredag|lördag|söndag)\s+(\d{4}-\d{2}-\d{2})\s+(\*?\s*\d{4,5}[A-Z]?|FRIDAG|Reserv\w*|(?:FV|FP\d?|FP-V)(?:\/(?:FV|FP\d?|FP-V))*)\s*(?:(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2}))?/gi;
 
             let match;
             while ((match = rowPattern.exec(text)) !== null) {
@@ -2342,7 +2468,8 @@
 
                 // Determine service display
                 let finalService = service;
-                if (service.toUpperCase() === 'FRIDAG') {
+                const serviceUpper = service.toUpperCase();
+                if (serviceUpper === 'FRIDAG' || serviceUpper.includes('FV') || serviceUpper.includes('FP')) {
                     finalService = 'Fri';
                 }
 
@@ -2357,7 +2484,7 @@
             // If no matches with the main pattern, try a more flexible approach
             if (currentPerson.entries.length === 0) {
                 // Fallback: Look for date patterns and times separately
-                const dateTimePattern = /(\d{4}-\d{2}-\d{2})\s+(\*?\s*\d{4,5}[A-Z]?|FRIDAG|Reserv\w*)\s*(?:(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2}))?/gi;
+                const dateTimePattern = /(\d{4}-\d{2}-\d{2})\s+(\*?\s*\d{4,5}[A-Z]?|FRIDAG|Reserv\w*|(?:FV|FP\d?|FP-V)(?:\/(?:FV|FP\d?|FP-V))*)\s*(?:(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2}))?/gi;
 
                 while ((match = dateTimePattern.exec(text)) !== null) {
                     const dateStr = match[1];
@@ -2379,7 +2506,8 @@
                     }
 
                     let finalService = service;
-                    if (service.toUpperCase() === 'FRIDAG') {
+                    const serviceUpperFallback = service.toUpperCase();
+                    if (serviceUpperFallback === 'FRIDAG' || serviceUpperFallback.includes('FV') || serviceUpperFallback.includes('FP')) {
                         finalService = 'Fri';
                     }
 
@@ -2889,6 +3017,68 @@
             }
         }
 
+        // Current selected month filter (null = all months)
+        let selectedMonth = null;
+
+        // Get available months from schedule data
+        function getAvailableMonths() {
+            const months = new Set();
+            if (!scheduleData || !scheduleData.people) return [];
+
+            scheduleData.people.forEach(person => {
+                if (person.entries) {
+                    person.entries.forEach(entry => {
+                        const parsed = normalizeDate(entry.date);
+                        if (parsed && parsed.month) {
+                            // Store as "YYYY-MM" or just "MM" with assumed year
+                            const year = parsed.year || new Date().getFullYear();
+                            months.add(`${year}-${String(parsed.month).padStart(2, '0')}`);
+                        }
+                    });
+                }
+            });
+
+            return Array.from(months).sort();
+        }
+
+        // Get month name in Swedish
+        function getMonthName(monthStr) {
+            const monthNames = ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni',
+                               'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December'];
+            const parts = monthStr.split('-');
+            const monthIndex = parseInt(parts[1], 10) - 1;
+            const year = parts[0];
+            return `${monthNames[monthIndex]} ${year}`;
+        }
+
+        // Count work days and free days for a person (filtered by month)
+        function countDaysForPerson(person, monthFilter) {
+            let workDays = 0;
+            let freeDays = 0;
+
+            if (!person.entries) return { workDays, freeDays };
+
+            person.entries.forEach(entry => {
+                // Check if entry matches month filter
+                if (monthFilter) {
+                    const parsed = normalizeDate(entry.date);
+                    if (parsed) {
+                        const year = parsed.year || new Date().getFullYear();
+                        const entryMonth = `${year}-${String(parsed.month).padStart(2, '0')}`;
+                        if (entryMonth !== monthFilter) return;
+                    }
+                }
+
+                if (isServiceFree(entry.service)) {
+                    freeDays++;
+                } else {
+                    workDays++;
+                }
+            });
+
+            return { workDays, freeDays };
+        }
+
         function renderSchedulesList() {
             const container = document.getElementById('schedulesListContainer');
 
@@ -2904,13 +3094,37 @@
                 return;
             }
 
-            // Count total entries
-            const totalEntries = scheduleData.people.reduce((sum, p) => sum + (p.entries ? p.entries.length : 0), 0);
+            // Get available months
+            const availableMonths = getAvailableMonths();
+
+            // Build month selector
+            let monthSelectorHtml = `
+                <div class="month-selector">
+                    <button class="month-btn ${selectedMonth === null ? 'active' : ''}" onclick="selectMonth(null)">Alla</button>
+            `;
+            availableMonths.forEach(month => {
+                monthSelectorHtml += `
+                    <button class="month-btn ${selectedMonth === month ? 'active' : ''}" onclick="selectMonth('${month}')">${getMonthName(month)}</button>
+                `;
+            });
+            monthSelectorHtml += '</div>';
+
+            // Count totals based on filter
+            let totalWorkDays = 0;
+            let totalFreeDays = 0;
+            scheduleData.people.forEach(person => {
+                const counts = countDaysForPerson(person, selectedMonth);
+                totalWorkDays += counts.workDays;
+                totalFreeDays += counts.freeDays;
+            });
 
             let html = `
+                ${monthSelectorHtml}
                 <div class="schedules-summary">
                     <div class="schedules-summary-text">
-                        👥 <strong>${scheduleData.people.length}</strong> personer &nbsp;|&nbsp; 📅 <strong>${totalEntries}</strong> schemauppgifter
+                        👥 <strong>${scheduleData.people.length}</strong> personer &nbsp;|&nbsp;
+                        💼 <strong>${totalWorkDays}</strong> arbetsdagar &nbsp;|&nbsp;
+                        🏖️ <strong>${totalFreeDays}</strong> fridagar
                     </div>
                     <div class="schedule-actions">
                         <button class="save-btn" onclick="saveScheduleToJson()">💾 Spara alla</button>
@@ -2920,14 +3134,19 @@
             `;
 
             scheduleData.people.forEach((person, personIndex) => {
-                const entryCount = person.entries ? person.entries.length : 0;
+                const counts = countDaysForPerson(person, selectedMonth);
+
+                // Skip if no entries for selected month
+                if (selectedMonth && counts.workDays === 0 && counts.freeDays === 0) {
+                    return;
+                }
 
                 html += `
                     <div class="schedule-list-item" id="schedule-item-${personIndex}">
                         <div class="schedule-list-header" onclick="openEditScheduleModal(${personIndex})">
                             <div>
                                 <div class="schedule-list-name">${escapeHtml(person.name)}</div>
-                                <div class="schedule-list-meta">${entryCount} schemauppgifter</div>
+                                <div class="schedule-list-meta">💼 ${counts.workDays} arbetsdagar · 🏖️ ${counts.freeDays} fridagar</div>
                             </div>
                             <div class="schedule-list-actions">
                                 <button class="schedule-list-btn delete" onclick="event.stopPropagation(); confirmDeletePerson('${escapeHtml(person.name).replace(/'/g, "\\'")}')">🗑️</button>
@@ -2938,6 +3157,11 @@
             });
 
             container.innerHTML = html;
+        }
+
+        function selectMonth(month) {
+            selectedMonth = month;
+            renderSchedulesList();
         }
 
         function openEditScheduleModal(personIndex) {
