@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="sv"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+<!DOCTYPE html>
+<html lang="sv">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Schemahanterare</title>
@@ -14,9 +16,9 @@
     <meta name="theme-color" content="#0f0f1a" media="(prefers-color-scheme: dark)">
 
     <!-- iOS Icons -->
-    <link rel="apple-touch-icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;rect fill='%23e63946' width='100' height='100' rx='20'/&gt;&lt;text x='50' y='68' font-size='50' text-anchor='middle' fill='white'&gt;📅&lt;/text&gt;&lt;/svg&gt;">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23e63946' width='100' height='100' rx='20'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='white'>📅</text></svg>">
 
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -1834,7 +1836,7 @@
                 <button type="button" class="login-btn" onclick="createPassword()">Skapa</button>
             </div>
 
-            <div class="version-text">Version 0.15</div>
+            <div class="version-text">Version 0.16</div>
         </div>
     </div>
 
@@ -1876,7 +1878,7 @@
                 Ladda upp schema
             </button>
         </div>
-        <div class="sidebar-version">Version 0.15</div>
+        <div class="sidebar-version">Version 0.16</div>
     </nav>
 
     <!-- Main Content -->
@@ -1973,7 +1975,7 @@
 
         // ============================================
         // APP VERSION
-        const APP_VERSION = '0.15';
+        const APP_VERSION = '0.16';
 
         // FIREBASE CONFIGURATION
         // ============================================
@@ -2009,12 +2011,21 @@
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // Get stored password hash from Firebase
+        // Get stored password hash from Firebase (with timeout)
         async function getStoredPasswordHash() {
             return new Promise((resolve) => {
+                // Timeout after 5 seconds
+                const timeout = setTimeout(() => {
+                    console.log('Firebase timeout - no password found');
+                    resolve(null);
+                }, 5000);
+
                 passwordRef.once('value').then((snapshot) => {
+                    clearTimeout(timeout);
                     resolve(snapshot.val());
-                }).catch(() => {
+                }).catch((err) => {
+                    clearTimeout(timeout);
+                    console.log('Firebase password error:', err);
                     resolve(null);
                 });
             });
@@ -2135,8 +2146,14 @@
                 return;
             }
 
+            // Show loading state
+            const loginBtn = document.querySelector('#loginForm .login-btn');
+            if (loginBtn) loginBtn.textContent = 'Ansluter...';
+
             // Check if password exists in Firebase
             const storedHash = await getStoredPasswordHash();
+
+            if (loginBtn) loginBtn.textContent = 'Logga in';
 
             if (storedHash) {
                 // Show login form
@@ -2168,6 +2185,13 @@
                 const storedHash = await getStoredPasswordHash();
                 const inputHash = await sha256Hash(password);
 
+                // If no stored hash found, show error about connection
+                if (!storedHash) {
+                    loginError.textContent = 'Kunde inte ansluta till databasen. Försök igen.';
+                    loginError.classList.add('show');
+                    return;
+                }
+
                 if (inputHash === storedHash) {
                     // Success - save session to device
                     await setLoggedIn(true);
@@ -2183,7 +2207,7 @@
                 }
             } catch (e) {
                 console.log('Login error:', e);
-                loginError.textContent = 'Ett fel uppstod. Försök igen.';
+                loginError.textContent = 'Ett fel uppstod: ' + (e.message || 'Okänt fel');
                 loginError.classList.add('show');
             } finally {
                 loginBtn.textContent = 'Logga in';
@@ -3832,7 +3856,5 @@
         }
 
     </script>
-
-
-
-</body></html>
+</body>
+</html>
