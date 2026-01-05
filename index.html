@@ -1836,7 +1836,7 @@
                 <button type="button" class="login-btn" onclick="createPassword()">Skapa</button>
             </div>
 
-            <div class="version-text">Version 0.12</div>
+            <div class="version-text">Version 0.13</div>
         </div>
     </div>
 
@@ -1878,7 +1878,7 @@
                 Ladda upp schema
             </button>
         </div>
-        <div class="sidebar-version">Version 0.12</div>
+        <div class="sidebar-version">Version 0.13</div>
     </nav>
 
     <!-- Main Content -->
@@ -1975,7 +1975,7 @@
 
         // ============================================
         // APP VERSION
-        const APP_VERSION = '0.12';
+        const APP_VERSION = '0.13';
 
         // FIREBASE CONFIGURATION
         // ============================================
@@ -3363,6 +3363,11 @@
                             </tbody>
                         </table>
                     </div>
+                    <div style="padding: 1rem; border-top: 1px solid var(--border); background: var(--bg-secondary);">
+                        <button onclick="exportToCalendar(${personIndex})" style="width: 100%; padding: 0.85rem; background: var(--success); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-family: inherit;">
+                            📅 Spara i kalender
+                        </button>
+                    </div>
                 </div>
             `;
             document.body.appendChild(modal);
@@ -3640,6 +3645,92 @@
                 return true;
             }
             return false;
+        }
+
+        // Export schedule to calendar (.ics file)
+        function exportToCalendar(personIndex) {
+            const person = scheduleData.people[personIndex];
+            if (!person || !person.entries || person.entries.length === 0) {
+                showToast('Inga schemauppgifter att exportera');
+                return;
+            }
+
+            // Generate ICS content
+            let icsContent = [
+                'BEGIN:VCALENDAR',
+                'VERSION:2.0',
+                'PRODID:-//Schemahanterare//Schema Export//SV',
+                'CALSCALE:GREGORIAN',
+                'METHOD:PUBLISH',
+                `X-WR-CALNAME:${person.name} - Arbetsschema`
+            ];
+
+            person.entries.forEach((entry, index) => {
+                // Skip free days
+                if (isServiceFree(entry.service)) return;
+
+                // Parse date from entry.date (format: DD/MM or DD/MM/YYYY)
+                const parsed = normalizeDate(entry.date);
+                if (!parsed) return;
+
+                const year = parsed.year || new Date().getFullYear();
+                const month = String(parsed.month).padStart(2, '0');
+                const day = String(parsed.day).padStart(2, '0');
+
+                // Parse time (format: "08:00-16:00")
+                let startHour = '08', startMin = '00';
+                let endHour = '16', endMin = '00';
+
+                if (entry.time && entry.time.includes('-')) {
+                    const timeParts = entry.time.split('-');
+                    if (timeParts[0]) {
+                        const start = timeParts[0].trim().split(':');
+                        startHour = start[0] || '08';
+                        startMin = start[1] || '00';
+                    }
+                    if (timeParts[1]) {
+                        const end = timeParts[1].trim().split(':');
+                        endHour = end[0] || '16';
+                        endMin = end[1] || '00';
+                    }
+                }
+
+                // Format dates for ICS (YYYYMMDDTHHMMSS)
+                const dtStart = `${year}${month}${day}T${startHour.padStart(2, '0')}${startMin.padStart(2, '0')}00`;
+                const dtEnd = `${year}${month}${day}T${endHour.padStart(2, '0')}${endMin.padStart(2, '0')}00`;
+
+                // Create unique ID
+                const uid = `${year}${month}${day}-${index}-${Date.now()}@schemahanterare`;
+
+                // Event title
+                const title = entry.service ? `Arbete: ${entry.service}` : 'Arbetspass';
+
+                icsContent.push('BEGIN:VEVENT');
+                icsContent.push(`UID:${uid}`);
+                icsContent.push(`DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z`);
+                icsContent.push(`DTSTART:${dtStart}`);
+                icsContent.push(`DTEND:${dtEnd}`);
+                icsContent.push(`SUMMARY:${title}`);
+                icsContent.push(`DESCRIPTION:${person.name} - ${entry.weekday || ''} ${entry.date}`);
+                icsContent.push('END:VEVENT');
+            });
+
+            icsContent.push('END:VCALENDAR');
+
+            // Create and download file
+            const blob = new Blob([icsContent.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+
+            // Create download link
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${person.name.replace(/\s+/g, '_')}_schema.ics`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast('Kalender exporterad!');
         }
 
         function formatServiceDisplay(service) {
